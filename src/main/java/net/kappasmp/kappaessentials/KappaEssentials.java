@@ -41,6 +41,13 @@ import java.util.UUID;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.math.BlockPos;
 
+
+// Add these imports to your KappaEssentials.java file:
+import net.kappasmp.kappaessentials.dailylogin.DailyLoginManager;
+import net.kappasmp.kappaessentials.command.DailyCommand;
+import net.kappasmp.kappaessentials.command.BetCommand;
+
+
 public class KappaEssentials implements ModInitializer {
 
 	public static final String MOD_ID = "kappaessentials";
@@ -82,6 +89,8 @@ public class KappaEssentials implements ModInitializer {
 			TpahereCommand.register(dispatcher);
 			TpAcceptCommand.register(dispatcher);
 			TpDenyCommand.register(dispatcher);
+            DailyCommand.register(dispatcher);
+            BetCommand.register(dispatcher); // Add this line
 
 			// Register /shop command
 			dispatcher.register(CommandManager.literal("shop")
@@ -93,9 +102,8 @@ public class KappaEssentials implements ModInitializer {
 					}));
 			ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 				ServerPlayerEntity player = handler.player;
-				if (player.hasPermissionLevel(2)) {
-					ModUpdateChecker.notifyIfOutdated(player, "1.1.6-1.21.4");
-				}
+                // Add this line to check daily login on player join
+                DailyLoginManager.checkDailyLoginOnJoin(player);
 			});
 		});
 	}
@@ -107,7 +115,8 @@ public class KappaEssentials implements ModInitializer {
 		BalanceManager.init(server);
 		TokenManager.load(); // Load tokens
 		ShopManager.init(configDir); // <<< Load shop.json
-		registerPlaceholders();
+        DailyLoginManager.init(configDir.toFile());
+        registerPlaceholders();
 		log("Balances, tokens, and shop loaded.");
 	}
 
@@ -115,6 +124,7 @@ public class KappaEssentials implements ModInitializer {
 		BalanceManager.saveBalances();
 		TokenManager.save(); // Save tokens
 		ShopManager.saveShop(); // <<< Save shop.json
+        DailyLoginManager.saveDailyLoginData(); // Add this line
 		log("Balances, tokens, and shop saved.");
 	}
 

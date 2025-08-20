@@ -61,7 +61,78 @@ public class SellCommand {
                     player.sendMessage(message, false);
                     return 1;
                 })
-                // New subcommand for selling the inventory
+                // New subcommand for selling multiple of the held item
+                .then(CommandManager.literal("multiple")
+                        .executes(context -> {
+                            ServerPlayerEntity player = context.getSource().getPlayer();
+                            ItemStack heldItem = player.getMainHandStack();
+
+                            // If the player isn't holding anything
+                            if (heldItem.isEmpty()) {
+                                player.sendMessage(
+                                        Text.literal("You're not holding any item to sell.")
+                                                .setStyle(Style.EMPTY.withColor(0xBEBEBE)),
+                                        false
+                                );
+                                return 0;
+                            }
+
+                            String heldItemId = Registries.ITEM.getId(heldItem.getItem()).toString();
+                            int pricePerItem = BalanceManager.getItemPrice(heldItemId);
+
+                            // If the item can't be sold
+                            if (pricePerItem <= 0) {
+                                player.sendMessage(
+                                        Text.literal("You cannot sell this item.")
+                                                .setStyle(Style.EMPTY.withColor(0xBEBEBE)),
+                                        false
+                                );
+                                return 0;
+                            }
+
+                            int totalCount = 0;
+                            int totalValue = 0;
+
+                            // Sell the held item first
+                            totalCount += heldItem.getCount();
+                            totalValue += pricePerItem * heldItem.getCount();
+                            heldItem.decrement(heldItem.getCount());
+
+                            // Loop through player's inventory to find matching items
+                            for (int i = 0; i < player.getInventory().size(); i++) {
+                                ItemStack stack = player.getInventory().getStack(i);
+
+                                if (!stack.isEmpty()) {
+                                    String itemId = Registries.ITEM.getId(stack.getItem()).toString();
+
+                                    // If this item matches the held item
+                                    if (itemId.equals(heldItemId)) {
+                                        totalCount += stack.getCount();
+                                        totalValue += pricePerItem * stack.getCount();
+                                        stack.decrement(stack.getCount());
+                                    }
+                                }
+                            }
+
+                            BalanceManager.addBalance(player.getUuid(), totalValue);
+
+                            // Create feedback message
+                            MutableText message = Text.literal("Sold ")
+                                    .setStyle(Style.EMPTY.withColor(0xBEBEBE))
+                                    .append(Text.literal(totalCount + "x ")
+                                            .setStyle(Style.EMPTY.withColor(0xFF8300)))
+                                    .append(Text.literal(heldItemId.split(":")[1] + " ")
+                                            .setStyle(Style.EMPTY.withColor(0xBEBEBE)))
+                                    .append(Text.literal("for ")
+                                            .setStyle(Style.EMPTY.withColor(0xBEBEBE)))
+                                    .append(Text.literal("$" + totalValue)
+                                            .setStyle(Style.EMPTY.withColor(0xFF8300)));
+
+                            player.sendMessage(message, false);
+                            return 1;
+                        })
+                )
+                // Existing subcommand for selling the entire inventory
                 .then(CommandManager.literal("inventory")
                         .executes(context -> {
                             ServerPlayerEntity player = context.getSource().getPlayer();

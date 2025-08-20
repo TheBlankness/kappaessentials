@@ -38,7 +38,7 @@ public class BountyRewardHandler {
             victim.sendMessage(Text.literal("§cYou were killed by §e" + killer.getName().getString() + "§c and your bounty of §c$" + formattedBounty + " §cwas claimed."), false);
 
             // Deduct bounty from victim's balance
-            BalanceManager.subtractBalance(victim.getUuid(), bounty);
+//            BalanceManager.subtractBalance(victim.getUuid(), bounty);
 
             // Remove bounty after it is claimed and save the bounty data
             BountyManager.removeBounty(victim.getUuid());

@@ -35,8 +35,7 @@ public class ModUpdateChecker {
 
     public static void notifyIfOutdated(ServerPlayerEntity player, String currentVersion) {
         if (latestVersion != null && !latestVersion.equalsIgnoreCase(currentVersion)) {
-            player.sendMessage(Text.literal("§eA new version of §6KappaEssentials §eis available: §a" + latestVersion +
-                    " §7(current: " + currentVersion + "). Download it at §bhttps://modrinth.com/mod/kappaessentials"), false);
+
         }
     }
 }

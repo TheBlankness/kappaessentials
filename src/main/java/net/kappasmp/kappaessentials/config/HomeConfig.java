@@ -11,7 +11,7 @@ public class HomeConfig {
     }};
 
     public boolean cancelOnMove = true;
-    public int teleportDelaySeconds = 5;
+    public int teleportDelaySeconds = 0;
     public int cooldownSeconds = 60;
     public boolean crossDimensionAllowed = true;
     public boolean showCountdownMessages = true;
